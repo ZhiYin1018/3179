@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Malaysia Marriages Choropleth (2022)</title>
+  <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
+  <style>
+    body { font-family: Arial, Helvetica, sans-serif; background: #f0f0f0; }
+    #choropleth_map {
+      width: 900px;
+      height: 600px;
+      margin: 50px auto;
+      position: relative;
+    }
+  </style>
+</head>
+<body>
+  <h2 style="text-align:center">Estimated Marriages by State (Female, 2022)</h2>
+  <div id="choropleth_map"></div>
+
+  <script>
+    // Embed the Vega-Lite spec
+    const specUrl = "js/malaysia_choropleth.vg.json";  // make sure your JSON file is in the js folder
+    vegaEmbed('#choropleth_map', specUrl, {mode: "vega-lite"})
+      .then(function(result) {
+        console.log("Vega embed ready", result);
+      })
+      .catch(console.error);
+  </script>
+</body>
+</html>
