@@ -1,0 +1,52 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "width": 800,
+  "height": 600,
+  "title": "Marriage Rates by State (Female, 2022)",
+  "projection": {
+    "type": "conicConformal",
+    "center": [115, 4],
+    "scale": 2000
+  },
+  "layer": [
+    {
+      "data": {
+        "url": "https://raw.githubusercontent.com/ZhiYin1018/3179/main/malaysia-states.topojson",
+        "format": {"type": "topojson", "feature": "collection"}
+      },
+      "mark": {"type": "geoshape", "fill": "#eee", "stroke": "#aaa"}
+    },
+    {
+      "data": {
+        "url": "https://raw.githubusercontent.com/ZhiYin1018/3179/main/marriages_state_age.csv"
+      },
+      "transform": [
+        {"filter": "datum.date === '2022-01-01' && datum.sex === 'female' && datum.age === 'all'"},
+        {
+          "lookup": "state",
+          "from": {
+            "data": {
+              "url": "https://raw.githubusercontent.com/ZhiYin1018/3179/main/malaysia-states.topojson",
+              "format": {"type": "topojson", "feature": "collection"}
+            },
+            "key": "properties.NAME_1",
+            "fields": ["properties", "geometry"]
+          }
+        }
+      ],
+      "mark": {"type": "geoshape"},
+      "encoding": {
+        "color": {
+          "field": "rate",
+          "type": "quantitative",
+          "scale": {"scheme": "blues"},
+          "title": "Marriage Rate (per 1,000 women)"
+        },
+        "tooltip": [
+          {"field": "state", "type": "nominal", "title": "State"},
+          {"field": "rate", "type": "quantitative", "title": "Marriage Rate"}
+        ]
+      }
+    }
+  ]
+}
