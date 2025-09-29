@@ -1,33 +1,77 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
+  <meta charset="utf-8">
   <title>Malaysia Marriages Choropleth (2022)</title>
   <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
   <script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
   <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
   <style>
-    body { font-family: Arial, Helvetica, sans-serif; background: #f0f0f0; }
-    #choropleth_map {
-      width: 900px;
-      height: 600px;
-      margin: 50px auto;
-      position: relative;
-    }
+    #vis { width: 900px; height: 600px; margin:auto; top:50px; position:relative; }
+    body { font-family: Arial, Helvetica, sans-serif; background-color: #f0f0f0; }
+    h2 { text-align:center; }
   </style>
 </head>
 <body>
-  <h2 style="text-align:center">Estimated Marriages by State (Female, 2022)</h2>
-  <div id="choropleth_map"></div>
+<h2>Estimated Marriages by State (Malaysia, 2022, Female)</h2>
+<div id="vis"></div>
 
-  <script>
-    // Embed the Vega-Lite spec
-    const specUrl = "js/malaysia_choropleth.vg.json";  // make sure your JSON file is in the js folder
-    vegaEmbed('#choropleth_map', specUrl, {mode: "vega-lite"})
-      .then(function(result) {
-        console.log("Vega embed ready", result);
-      })
-      .catch(console.error);
-  </script>
+<script>
+vegaEmbed("#vis", {
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "width": 900,
+  "height": 600,
+  "projection": {"type": "conicEqualArea"},
+  "layer": [
+    // Layer 1: gray background for all states
+    {
+      "data": {
+        "url": "https://raw.githubusercontent.com/ZhiYin1018/3179/refs/heads/main/malaysia-states.topojson",
+        "format": {"type": "topojson", "feature": "states"}
+      },
+      "mark": {"type":"geoshape", "fill":"lightgray", "stroke":"white"},
+      "encoding": {
+        "tooltip": {"field":"properties.NAME_1", "type":"nominal", "title":"State"}
+      }
+    },
+    // Layer 2: color states by rate
+    {
+      "data": {
+        "url": "https://raw.githubusercontent.com/ZhiYin1018/3179/refs/heads/main/malaysia-states.topojson",
+        "format": {"type": "topojson", "feature": "states"}
+      },
+      "transform": [
+        {
+          "lookup": "properties.NAME_1",
+          "from": {
+            "data": {
+              "url": "https://raw.githubusercontent.com/ZhiYin1018/3179/refs/heads/main/marriages_state_age.csv",
+              "format": {"type": "csv"}
+            },
+            "key": "state",
+            "fields": ["rate","date","sex","age"]
+          }
+        },
+        {
+          "filter": "datum.date=='2022-01-01' && datum.sex=='female' && datum.age=='all'"
+        }
+      ],
+      "mark": {"type":"geoshape", "stroke":"#aaa"},
+      "encoding": {
+        "color": {
+          "field":"rate",
+          "type":"quantitative",
+          "scale":{"scheme":"blues"},
+          "title":"Marriage Rate (per 1,000 women)"
+        },
+        "tooltip": [
+          {"field":"properties.NAME_1","type":"nominal","title":"State"},
+          {"field":"rate","type":"quantitative","title":"Marriage Rate"}
+        ]
+      }
+    }
+  ]
+}).then(console.log).catch(console.error);
+</script>
 </body>
 </html>
