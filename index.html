@@ -22,6 +22,7 @@
       text-align: center;
       margin: 10px 0;
       color: #000;
+      font-family: Arial, sans-serif;
     }
   </style>
 </head>
@@ -40,7 +41,7 @@
         "type": "conicEqualArea",
         "center": [108, 4],
         "parallels": [1, 7],
-        "scale": 4700
+        "scale": 4200
       },
       "layer": [
         {
@@ -53,9 +54,7 @@
             "format": {"type": "csv"}
           },
           "transform": [
-            {
-              "filter": "datum.year == 2022 && datum.sex == 'female' && datum.age == 'all'"
-            },
+            {"filter": "datum.year == 2022 && datum.sex == 'female' && datum.age == 'all'"},
             {
               "lookup": "state",
               "from": {
@@ -96,7 +95,15 @@
             ]
           }
         }
-      ]
+      ],
+      "config": {
+        "style": {
+          "tooltip": {
+            "font": "Arial",
+            "fontSize": 13
+          }
+        }
+      }
     };
 
     vegaEmbed('#vis', spec, {renderer: "svg", actions: false})
