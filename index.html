@@ -2,76 +2,105 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Malaysia Marriages Choropleth (2022)</title>
-  <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
-  <script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
-  <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
+  <title>Malaysia Female Marriage Rate 2022</title>
+  <script src="https://cdn.jsdelivr.net/npm/vega@6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-lite@6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-embed@7"></script>
   <style>
-    #vis { width: 900px; height: 600px; margin:auto; top:50px; position:relative; }
-    body { font-family: Arial, Helvetica, sans-serif; background-color: #f0f0f0; }
-    h2 { text-align:center; }
+    body, html {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #cfeefb; 
+    }
+    #vis {
+      width: 100%;
+      height: 100vh;
+    }
+    h2 {
+      text-align: center;
+      margin: 10px 0;
+      color: #000;
+    }
   </style>
 </head>
 <body>
-<h2>Estimated Marriages by State (Malaysia, 2022, Female)</h2>
-<div id="vis"></div>
+  <h2>Female Marriage Rate in Malaysia, 2022 (All Ages)</h2>
+  <div id="vis"></div>
 
-<script>
-vegaEmbed("#vis", {
-  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-  "width": 900,
-  "height": 600,
-  "projection": {"type": "conicEqualArea"},
-  "layer": [
-    // Layer 1: gray background for all states
-    {
-      "data": {
-        "url": "https://raw.githubusercontent.com/ZhiYin1018/3179/refs/heads/main/malaysia-states.topojson",
-        "format": {"type": "topojson", "feature": "states"}
+  <script type="text/javascript">
+    const spec = {
+      "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+      "description": "Female Marriage Rate in Malaysia, 2022 (All Ages)",
+      "width": "container",
+      "height": "container",
+      "background": "#cfeefb",
+      "projection": {
+        "type": "conicEqualArea",
+        "center": [108, 4],
+        "parallels": [1, 7],
+        "scale": 4700
       },
-      "mark": {"type":"geoshape", "fill":"lightgray", "stroke":"white"},
-      "encoding": {
-        "tooltip": {"field":"properties.NAME_1", "type":"nominal", "title":"State"}
-      }
-    },
-    // Layer 2: color states by rate
-    {
-      "data": {
-        "url": "https://raw.githubusercontent.com/ZhiYin1018/3179/refs/heads/main/malaysia-states.topojson",
-        "format": {"type": "topojson", "feature": "states"}
-      },
-      "transform": [
+      "layer": [
         {
-          "lookup": "properties.NAME_1",
-          "from": {
-            "data": {
-              "url": "https://raw.githubusercontent.com/ZhiYin1018/3179/refs/heads/main/marriages_state_age.csv",
-              "format": {"type": "csv"}
+          "data": {"sphere": true},
+          "mark": {"type": "geoshape", "fill": "#cfeefb"}
+        },
+        {
+          "data": {
+            "url": "https://raw.githubusercontent.com/ZhiYin1018/3179/refs/heads/main/data/marriages_state_age.csv",
+            "format": {"type": "csv"}
+          },
+          "transform": [
+            {
+              "filter": "datum.year == 2022 && datum.sex == 'female' && datum.age == 'all'"
             },
-            "key": "state",
-            "fields": ["rate","date","sex","age"]
+            {
+              "lookup": "state",
+              "from": {
+                "data": {
+                  "url": "https://raw.githubusercontent.com/ZhiYin1018/3179/refs/heads/main/data/malaysia-states.topojson",
+                  "format": {"type": "topojson", "feature": "gadm41_MYS_1"}
+                },
+                "key": "properties.NAME_1"
+              },
+              "as": "geo"
+            },
+            {"filter": "datum.geo != null"}
+          ],
+          "mark": {"type": "geoshape", "stroke": "#fff", "strokeWidth": 0.6},
+          "encoding": {
+            "shape": {"field": "geo", "type": "geojson"},
+            "color": {
+              "field": "rate",
+              "type": "quantitative",
+              "scale": {
+                "type": "threshold",
+                "domain": [18, 22, 25, 28, 32],
+                "range": ["#fee5d9", "#fcbba1", "#fc9272", "#fb6a4a", "#de2d26", "#a50f15"]
+              },
+              "legend": {
+                "title": "Marriage Rate (per 1000 females)",
+                "titleFont": "Arial",
+                "labelFont": "Arial",
+                "orient": "top-right",
+                "direction": "horizontal",
+                "symbolType": "square",
+                "padding": 8
+              }
+            },
+            "tooltip": [
+              {"field": "state", "type": "nominal", "title": "State"},
+              {"field": "rate", "type": "quantitative", "title": "Marriage Rate", "format": ".1f"}
+            ]
           }
-        },
-        {
-          "filter": "datum.date=='2022-01-01' && datum.sex=='female' && datum.age=='all'"
         }
-      ],
-      "mark": {"type":"geoshape", "stroke":"#aaa"},
-      "encoding": {
-        "color": {
-          "field":"rate",
-          "type":"quantitative",
-          "scale":{"scheme":"blues"},
-          "title":"Marriage Rate (per 1,000 women)"
-        },
-        "tooltip": [
-          {"field":"properties.NAME_1","type":"nominal","title":"State"},
-          {"field":"rate","type":"quantitative","title":"Marriage Rate"}
-        ]
-      }
-    }
-  ]
-}).then(console.log).catch(console.error);
-</script>
+      ]
+    };
+
+    vegaEmbed('#vis', spec, {renderer: "svg", actions: false})
+      .catch(console.error);
+  </script>
 </body>
 </html>
